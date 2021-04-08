@@ -1,0 +1,209 @@
+{
+	"info": {
+		"_postman_id": "13aa069f-ce3b-4c0d-b50c-a7607a412ac8",
+		"name": "AP Packet Capture",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Service Ticket",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7bc42a92-5800-4087-a5c6-dc3a8b53bc75",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"serviceTicket\", jsonData.serviceTicket);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"ruckus123!\"\n}\n\n\t"
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/serviceTicket",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v8_1",
+						"serviceTicket"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AP start packet capture",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"captureInterface\": \"RADIO50\",\r\n  \"includedFrameTypes\": [\r\n    \"CONTROL\",\r\n    \"DATA\"\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/B4:79:C8:0D:76:30/apPacketCapture/startFileCapture?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"aps",
+						"B4:79:C8:0D:76:30",
+						"apPacketCapture",
+						"startFileCapture"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AP stop packet capture",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/B4:79:C8:0D:76:30/apPacketCapture/stop?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"aps",
+						"B4:79:C8:0D:76:30",
+						"apPacketCapture",
+						"stop"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AP packet capture download",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/B4:79:C8:0D:76:30/apPacketCapture/download?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"aps",
+						"B4:79:C8:0D:76:30",
+						"apPacketCapture",
+						"download"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

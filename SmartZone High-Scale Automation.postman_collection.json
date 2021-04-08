@@ -1,0 +1,2483 @@
+{
+	"info": {
+		"_postman_id": "f0e5f261-1f5a-4d3e-b697-a79fda0fc670",
+		"name": "SZ High-Scale Automation",
+		"description": "Pre-Requisites\n\nThe following instructions assume you have the following components:\n-\tone vSZ-High Scale instance running 5.2.0.0.685 or later;\n-\tone access point onboarded into the vSZ staging zone;\n\nInstructions\n\nEdit the attribute values for the API call \"1. Get service ticket\" under the folder \"System\" to match with your vSZ instance:\n-\tchange the IP address in the \"Pre-request Script\"\n-\tchange the credentials in the \"Body\"\n\nCheck if if system clock in your vSZ instance matches the clock in your computer. Make the necessary adjustments (sync the NTP server or change the time zone), otherwise the API calls that are time-dependent (ex: \"2. Get wireless application traffic\" under \"Clients and Traffic\") will not return the correct values.\n\nSend the API call \"1. Get service ticket\" to obtain the authentication token.\n\nSend each of the subsequent API calls in the order which they appear.\n\nAfter you execute all calls, clean you vSZ instance by executing all API calls under the \"Delete objects\" folder,  in the order which they appear.\n\nYou can see the variable values in the \"Variables\" tab in this page.\n\nFor more information about this collection please contact marcelo.molinari@commscope.com\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "1. Get service ticket",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "c918b4d0-9c57-44ce-94d3-3863870a168b",
+								"exec": [
+									"pm.collectionVariables.set(\"host\", \"10.0.0.32\");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "d5685b99-f144-4bcf-ae70-b7d652c30f6c",
+								"exec": [
+									"const dateNow = new Date();\r",
+									"var epoch = dateNow.getTime();\r",
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"serviceTicket\", jsonData.serviceTicket);\r",
+									"pm.collectionVariables.set(\"startTime\", epoch - 3600000);\r",
+									"pm.collectionVariables.set(\"endTime\", epoch);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"ruckus123!\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/serviceTicket",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"serviceTicket"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get sytem information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/controller?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"controller"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						},
+						"description": "Includes hostname, serial number and model number"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Create domain",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "98281833-8494-4dbf-8ca1-ab116fa02254",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"domainID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"California\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/domains?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"domains"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Get domains",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ce54a5e1-df38-4a3a-b5b9-b6db6ca40b3a",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"domainID\", jsonData.list[0].id);\r",
+									"pm.collectionVariables.set(\"parentDomainID\", jsonData.list[0].parentDomainId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/domains?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"domains"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Create zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "98281833-8494-4dbf-8ca1-ab116fa02254",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"zoneID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"domainId\": \"{{domainID}}\",\r\n  \"name\": \"Sunnyvale\",\r\n  \"description\": \"\",\r\n  \"countryCode\": \"US\",\r\n  \"timezone\": {\r\n    \"customizedTimezone\": {\r\n      \"abbreviation\": \"TPE\",\r\n      \"gmtOffset\": 0,\r\n      \"gmtOffsetMinute\": 0\r\n    }\r\n  },\r\n  \"login\": {\r\n    \"apLoginName\": \"admin\",\r\n    \"apLoginPassword\": \"ruckus123!\"\r\n  },\r\n  \"mesh\": {\r\n        \"ssid\": \"mesh-xNHByMiO\",\r\n        \"passphrase\": \"oxnEe1e9L5LSG8ojqpPuLys3l78ibf30ODcSxcUcCBZAXShPvKjvJSnpAYH937H\",\r\n        \"meshRadioIdx\": \"Radio5G\",\r\n        \"zeroTouchStatus\": false\r\n    },\r\n  \"apHccdEnabled\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Get zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ce54a5e1-df38-4a3a-b5b9-b6db6ca40b3a",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"zoneID\", jsonData.list[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. Query zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ce54a5e1-df38-4a3a-b5b9-b6db6ca40b3a",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. Get AP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"apMAC\", jsonData.list[0].mac);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"filters\": [\r\n    {\r\n      \"type\": \"ZONE\",\r\n      \"value\": \"{{zoneID}}\",\r\n      \"operator\": \"eq\"\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"aps"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9. Move AP to zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ce54a5e1-df38-4a3a-b5b9-b6db6ca40b3a",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    \"{{apMAC}}\"\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/scg/aps/move/{{zoneID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"scg",
+								"aps",
+								"move",
+								"{{zoneID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10. Get firmware version",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/controller?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"controller"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						},
+						"description": "Includes hostname, serial number and model number"
+					},
+					"response": []
+				},
+				{
+					"name": "11. Get ethernet profiles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "cadaf53b-92dc-4172-898c-0cfe0af6852b",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"ethProfileID\", jsonData.list[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"filters\": [\r\n    {\r\n      \"type\": \"ZONE\",\r\n      \"value\": \"{{zoneID}}\",\r\n      \"operator\": \"eq\"\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/profile/ethernetPort?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"profile",
+								"ethernetPort"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12. Get ethernet profile details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "54d073ec-7326-413f-b4af-da5fc1c129d0",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"filters\": [\r\n    {\r\n      \"type\": \"ZONE\",\r\n      \"value\": \"{{zoneID}}\",\r\n      \"operator\": \"eq\"\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/profile/ethernetPort/{{ethProfileID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"profile",
+								"ethernetPort",
+								"{{ethProfileID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12. Get ethernet profiles (unsupported)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "43aa6a70-8b77-4db9-8981-d356c59409ad",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/scg/ethernetPortProfile/{{ethProfileID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"scg",
+								"ethernetPortProfile",
+								"{{ethProfileID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12. Change ethernet profile (unsupported)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f2cdf934-4224-4e1a-b540-2b632a13829b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Port\",\n    \"description\": \"\",\n    \"accessNetworkPort\": 2,\n    \"untagId\": \"1\",\n    \"firewallProfileId\": \"9d5d83a1-7f89-11ea-b8b8-dab0fc13c77f\",\n    \"key\": \"3\",\n    \"tenantId\": \"839f87c6-d116-497e-afce-aa8157abd30c\",\n    \"createDateTime\": \"1593183776373\",\n    \"creatorId\": \"92cc1b65-c3cd-4f26-8c9b-3e7b055c7c25\",\n    \"creatorUsername\": \"admin\",\n    \"antiSpoofingEnabled\": false,\n    \"userSidePortEnabled\": false,\n    \"zoneUUID\": \"07ed46f8-87fb-4cc8-84c8-8400d830c6d7\",\n    \"zoneName\": \"Debian\",\n    \"tenantUUID\": \"839f87c6-d116-497e-afce-aa8157abd30c\",\n    \"tunnel\": 2,\n    \"vlanMembers\": \"1-4094\",\n    \"type\": 1,\n    \"role\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://10.0.0.32:8443/wsg/api/scg/ethernetPortProfile/3?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"10",
+								"0",
+								"0",
+								"32"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"scg",
+								"ethernetPortProfile",
+								"3"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "APs",
+			"item": [
+				{
+					"name": "1. Blink AP led",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/{{apMAC}}/operational/blinkLed?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"aps",
+								"{{apMAC}}",
+								"operational",
+								"blinkLed"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get AP summary",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/{{apMAC}}/operational/summary?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"aps",
+								"{{apMAC}}",
+								"operational",
+								"summary"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Get AP configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/{{apMAC}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"aps",
+								"{{apMAC}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Query AP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"type\": \"ZONE\",\n            \"value\": \"{{zoneID}}\"\n        }\n    ],\n    \"fullTextSearch\": {\n        \"type\": \"AND\",\n        \"value\": \"\"\n    },\n    \"attributes\": [\n        \"*\"\n    ],\n    \"sortInfo\": {\n        \"sortColumn\": \"apMac\",\n        \"dir\": \"ASC\"\n    },\n    \"page\": 1,\n    \"limit\": 8,\n    \"extraNotFilters\": [\n        {\n            \"type\": \"MONITORINGENABLED\",\n            \"value\": \"true\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/query/ap?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"query",
+								"ap"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "WLAN",
+			"item": [
+				{
+					"name": "1. Create wlan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "98281833-8494-4dbf-8ca1-ab116fa02254",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"wlanID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"WPA WLAN\",\n  \"ssid\": \"WPA_SSID\",\n  \"description\": \"my wlan\",\n  \"encryption\": {\n    \"method\": \"WPA2\",\n    \"algorithm\": \"AES\",\n    \"passphrase\": \"ruckus123\"\n  },\n  \"advancedOptions\":{\n  \t\"clientFingerprintingEnabled\": true,\n  \t\"avcEnabled\": true\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get wlans",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "98281833-8494-4dbf-8ca1-ab116fa02254",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"wlanID\", jsonData.list[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Query wlan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5bbf2039-9994-4bb7-a8f7-d721742c364f",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Configure wlan",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"This WLAN uses WPA/AES\",\n    \"vlan\": {\n        \"accessVlan\": 1\n    },\n    \"encryption\": {\n        \"method\": \"WPA2\",\n        \"algorithm\": \"AES\",\n        \"passphrase\": \"ruckus123\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. DIsable wlan",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"schedule\": {\r\n    \"type\": \"AlwaysOff\"}\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Enable wlan",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"schedule\": {\r\n    \"type\": \"AlwaysOn\"}\r\n}\r\n",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. Get AP BSSIDs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"filters\": [\r\n    {\r\n      \"type\": \"DOMAIN\",\r\n      \"value\": \"{{domainID}}\"\r\n    }\r\n  ],\r\n  \"fullTextSearch\": {\r\n    \"type\": \"AND\",\r\n    \"value\": \"\"\r\n  },\r\n  \"attributes\": [\r\n    \"*\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/{{apMAC}}/wlan?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"aps",
+								"{{apMAC}}",
+								"wlan"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. Get DPSK list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f72d0c61-a782-482d-9522-e1fe0193ea90",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set(\"dpskID\", jsonData.list[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}/dpsk?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}",
+								"dpsk"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}",
+									"description": "(Required) Service Ticket is required in the Request URI Parameters of all API requests (except for the logon API)."
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Internal Server Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rkszones/:zoneId/wlans/:id/dpsk?serviceTicket=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rkszones",
+										":zoneId",
+										"wlans",
+										":id",
+										"dpsk"
+									],
+									"query": [
+										{
+											"key": "serviceTicket",
+											"value": "<string>"
+										}
+									],
+									"variable": [
+										{
+											"key": "zoneId"
+										},
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Bad Request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rkszones/:zoneId/wlans/:id/dpsk?serviceTicket=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rkszones",
+										":zoneId",
+										"wlans",
+										":id",
+										"dpsk"
+									],
+									"query": [
+										{
+											"key": "serviceTicket",
+											"value": "<string>"
+										}
+									],
+									"variable": [
+										{
+											"key": "zoneId"
+										},
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rkszones/:zoneId/wlans/:id/dpsk?serviceTicket=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rkszones",
+										":zoneId",
+										"wlans",
+										":id",
+										"dpsk"
+									],
+									"query": [
+										{
+											"key": "serviceTicket",
+											"value": "<string>"
+										}
+									],
+									"variable": [
+										{
+											"key": "zoneId"
+										},
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Forbidden - Lack of admin privilege",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rkszones/:zoneId/wlans/:id/dpsk?serviceTicket=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rkszones",
+										":zoneId",
+										"wlans",
+										":id",
+										"dpsk"
+									],
+									"query": [
+										{
+											"key": "serviceTicket",
+											"value": "<string>"
+										}
+									],
+									"variable": [
+										{
+											"key": "zoneId"
+										},
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "9. Get DPSK details",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}/dpsk/{{dpskID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}",
+								"dpsk",
+								"{{dpskID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}",
+									"description": "(Required) Service Ticket is required in the Request URI Parameters of all API requests (except for the logon API)."
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Bad Request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rkszones/:zoneId/wlans/:id/dpsk/:dpskId?serviceTicket=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rkszones",
+										":zoneId",
+										"wlans",
+										":id",
+										"dpsk",
+										":dpskId"
+									],
+									"query": [
+										{
+											"key": "serviceTicket",
+											"value": "<string>"
+										}
+									],
+									"variable": [
+										{
+											"key": "zoneId"
+										},
+										{
+											"key": "id"
+										},
+										{
+											"key": "dpskId"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Internal Server Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rkszones/:zoneId/wlans/:id/dpsk/:dpskId?serviceTicket=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rkszones",
+										":zoneId",
+										"wlans",
+										":id",
+										"dpsk",
+										":dpskId"
+									],
+									"query": [
+										{
+											"key": "serviceTicket",
+											"value": "<string>"
+										}
+									],
+									"variable": [
+										{
+											"key": "zoneId"
+										},
+										{
+											"key": "id"
+										},
+										{
+											"key": "dpskId"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rkszones/:zoneId/wlans/:id/dpsk/:dpskId?serviceTicket=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rkszones",
+										":zoneId",
+										"wlans",
+										":id",
+										"dpsk",
+										":dpskId"
+									],
+									"query": [
+										{
+											"key": "serviceTicket",
+											"value": "<string>"
+										}
+									],
+									"variable": [
+										{
+											"key": "zoneId"
+										},
+										{
+											"key": "id"
+										},
+										{
+											"key": "dpskId"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Forbidden - Lack of admin privilege",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rkszones/:zoneId/wlans/:id/dpsk/:dpskId?serviceTicket=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rkszones",
+										":zoneId",
+										"wlans",
+										":id",
+										"dpsk",
+										":dpskId"
+									],
+									"query": [
+										{
+											"key": "serviceTicket",
+											"value": "<string>"
+										}
+									],
+									"variable": [
+										{
+											"key": "zoneId"
+										},
+										{
+											"key": "id"
+										},
+										{
+											"key": "dpskId"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Clients and traffic",
+			"item": [
+				{
+					"name": "1. Get wireless clients",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"type\": \"DOMAIN\",\n            \"value\": \"{{domainID}}\"\n        }\n    ],\n    \"fullTextSearch\": {\n        \"type\": \"AND\",\n        \"value\": \"\"\n    },\n    \"attributes\": [\n        \"*\"\n    ],\n    \"sortInfo\": {\n        \"sortColumn\": \"clientMac\",\n        \"dir\": \"ASC\"\n    },\n    \"page\": 1,\n    \"limit\": 8\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/query/client?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"query",
+								"client"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get wireless application traffic",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "512421d2-d177-4e0d-9b67-361c5915be3f",
+								"exec": [
+									"const dateNow = new Date();\r",
+									"var epoch = dateNow.getTime();\r",
+									"pm.collectionVariables.set(\"startTime\", epoch - 3600000);\r",
+									"pm.collectionVariables.set(\"endTime\", epoch);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"type\": \"DOMAIN\",\n            \"value\": \"{{domainID}}\"\n        }\n    ],\n    \"extraFilters\": [\n        {\n            \"type\": \"RADIOID\",\n            \"value\": \"2.4G+5G\"\n        },\n        {\n            \"type\": \"WLAN\",\n            \"value\": \"{{wlanID}}\"\n        }\n    ],\n    \"extraNotFilters\": [\n        {\n            \"type\": \"MONITORINGENABLED\",\n            \"value\": \"true\"\n        }\n    ],\n    \"attributes\": [\n        \"tx+rx\"\n    ],\n    \"extraTimeRange\": {\n        \"start\": {{startTime}},\n        \"end\": {{endTime}},\n        \"interval\": 180000\n    },\n    \"options\": {},\n    \"limit\": 10,\n    \"page\": 1\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/trafficAnalysis/client/app/wlan?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"trafficAnalysis",
+								"client",
+								"app",
+								"wlan"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Get wireless connections per wlan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"type\": \"DOMAIN\",\n            \"value\": \"{{domainID}}\"\n        }\n    ],\n    \"fullTextSearch\": {\n        \"type\": \"AND\",\n        \"value\": \"\"\n    },\n    \"attributes\": [\n        \"*\"\n    ],\n    \"sortInfo\": {\n        \"sortColumn\": \"clientMac\",\n        \"dir\": \"ASC\"\n    },\n    \"page\": 1,\n    \"limit\": 8,\n    \"extraFilters\": [\n        {\n            \"value\": \"{{wlanID}}\",\n            \"type\": \"WLAN\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/query/client?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"query",
+								"client"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Get AP airtime report",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/{{apMAC}}/airtimeReport?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"aps",
+								"{{apMAC}}",
+								"airtimeReport"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Get EAP failures",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1584dc9d-099f-4f8f-aaae-0a422977786d",
+								"exec": [
+									"const dateNow = new Date();\r",
+									"var epoch = dateNow.getTime();\r",
+									"pm.collectionVariables.set(\"startTime\", epoch - 3600000);\r",
+									"pm.collectionVariables.set(\"endTime\", epoch);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"type\": \"DOMAIN\",\n            \"value\": \"{{domainID}}\"\n        }\n    ],\n    \"extraFilters\": [\n        {\n            \"type\": \"RADIOID\",\n            \"value\": \"2.4G+5G\"\n        }\n    ],\n    \"attributes\": [\n        \"AP_Name\"\n    ],\n    \"extraTimeRange\": {\n        \"start\": {{startTime}},\n        \"end\": {{endTime}},\n        \"interval\": 180000\n    },\n    \"limit\": 10,\n    \"page\": 1\n}\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/healthExtend/groupBar/eapFailure?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"healthExtend",
+								"groupBar",
+								"eapFailure"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Create wireless ACL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"aclID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"domainId\": \"{{parentDomainID}}\",\r\n  \"name\": \"ACL 102\",\r\n  \"description\": \"Extended ACL\",\r\n  \"defaultAction\": \"BLOCK\",\r\n  \"l3AclRuleList\": [\r\n       {\r\n      \"description\": \"acl rule description\",\r\n      \"enableSourceIpSubnet\": true,\r\n      \"sourceIp\": \"255.17.26.87\",\r\n      \"sourceIpMask\": \"255.255.255.0\",\r\n      \"sourceMinPort\": 80,\r\n      \"destinationIp\": \"172.17.26.69\",\r\n      \"destinationIpMask\": \"255.255.0.0\",\r\n      \"destinationMinPort\": 8443,\r\n      \"protocol\": \"UDP\",\r\n      \"action\": \"BLOCK\",\r\n      \"direction\": \"INBOUND\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/l3AccessControlPolicies?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"l3AccessControlPolicies"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. Get wireless ACLs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"filters\": [\r\n    {\r\n      \"type\": \"ZONE\",\r\n      \"value\": \"{{zoneID}}\",\r\n      \"operator\": \"eq\"\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/l3AccessControlPolicies?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"l3AccessControlPolicies"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. Query wireless ACL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/l3AccessControlPolicies/{{aclID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"l3AccessControlPolicies",
+								"{{aclID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9. Update wireless ACL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"ACL 102\",\r\n  \"description\": \"ACL Estendida\",\r\n  \"defaultAction\": \"BLOCK\",\r\n  \"l3AclRuleList\": [\r\n       {\r\n      \"description\": \"regra\",\r\n      \"enableSourceIpSubnet\": true,\r\n      \"sourceIp\": \"250.17.26.87\",\r\n      \"sourceIpMask\": \"255.255.255.0\",\r\n      \"sourceMinPort\": 80,\r\n      \"destinationIp\": \"170.17.26.69\",\r\n      \"destinationIpMask\": \"255.255.0.0\",\r\n      \"destinationMinPort\": 8553,\r\n      \"protocol\": \"UDP\",\r\n      \"action\": \"BLOCK\",\r\n      \"direction\": \"INBOUND\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/l3AccessControlPolicies/{{aclID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"l3AccessControlPolicies",
+								"{{aclID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Delete objects",
+			"item": [
+				{
+					"name": "1. Delete ACL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/l3AccessControlPolicies/{{aclID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"l3AccessControlPolicies",
+								"{{aclID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Delete wlan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "98281833-8494-4dbf-8ca1-ab116fa02254",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v8_1",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Delete AP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/{{apMAC}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"aps",
+								"{{apMAC}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Delete zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ce54a5e1-df38-4a3a-b5b9-b6db6ca40b3a",
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Delete domain",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ce54a5e1-df38-4a3a-b5b9-b6db6ca40b3a",
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/domains/{{domainID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"domains",
+								"{{domainID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "085922da-4060-4cc7-8ae5-55614f1078fe",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "befa53bd-b202-462f-9a85-8b8630eb52c2",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "ef1bd772-68f2-4d02-86fe-6ca9b3bde31c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "f2580d36-e61f-484d-8844-f77410ae2309",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "93852696-7dc4-4a44-b7fc-61970ddd7001",
+			"key": "host",
+			"value": "10.0.0.32"
+		},
+		{
+			"id": "f2cdad49-5465-4530-9fd6-d7366bc3ced9",
+			"key": "endTime",
+			"value": 1593390910294
+		},
+		{
+			"id": "57712c03-9da9-4cb1-a952-75854a19a128",
+			"key": "serviceTicket",
+			"value": "ST-868-bf95S27cxof5AF32yBJg-SZ5200685"
+		},
+		{
+			"id": "2c493a6e-267a-4696-a312-66c70e316948",
+			"key": "startTime",
+			"value": 1593387310294
+		},
+		{
+			"id": "cc21dcc9-ddd1-4c1a-961f-0008c1423079",
+			"key": "domainID",
+			"value": "51a7cd20-403e-49e9-95b7-628bfba59522"
+		},
+		{
+			"id": "5c4ca146-0c7e-4f51-b110-f328f2a7b796",
+			"key": "zoneID",
+			"value": "07ed46f8-87fb-4cc8-84c8-8400d830c6d7"
+		},
+		{
+			"id": "54b5d368-4274-4cef-a35e-6f5a0ae4fe4f",
+			"key": "parentDomainID",
+			"value": "8b2081d5-9662-40d9-a3db-2a3cf4dde3f7"
+		},
+		{
+			"id": "4649d4b4-0397-4483-8ac3-a1998dbc3fa5",
+			"key": "apMAC",
+			"value": null
+		},
+		{
+			"id": "e914a09e-3c53-4564-979e-32498c61609f",
+			"key": "wlanID",
+			"value": "309"
+		},
+		{
+			"id": "5eee3788-fcd9-47f1-9bf7-21c2de79f2aa",
+			"key": "aclID",
+			"value": "b3da71f0-7f8f-11ea-86ef-dab0fc13c77f"
+		},
+		{
+			"id": "4ddea9c0-2f28-463f-9727-f7fcb701a506",
+			"key": "dpskID",
+			"value": "85654352-b11b-4909-891e-c3c509907c72"
+		},
+		{
+			"id": "e0679cef-5551-49da-bd36-6a0374c84e55",
+			"key": "ethProfileID",
+			"value": "3"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
