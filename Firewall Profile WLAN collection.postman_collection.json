@@ -26,7 +26,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"host\", \"10.0.0.98\");"
+									"pm.collectionVariables.set(\"host\", \"A.B.C.D\");"
 								],
 								"type": "text/javascript"
 							}
@@ -37,7 +37,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"ruckus123!\"\n}",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

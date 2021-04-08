@@ -782,7 +782,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"ruckus123!\"\n}\n\n\t"
+					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}\n\n\t"
 				},
 				"url": {
 					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/serviceTicket",
@@ -873,7 +873,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"domainId\": \"{{domainID}}\",\r\n  \"name\": \"Sunnyvale\",\r\n  \"description\": \"\",\r\n  \"countryCode\": \"US\",\r\n  \"timezone\": {\r\n    \"customizedTimezone\": {\r\n      \"abbreviation\": \"TPE\",\r\n      \"gmtOffset\": 0,\r\n      \"gmtOffsetMinute\": 0\r\n    }\r\n  },\r\n  \"login\": {\r\n    \"apLoginName\": \"admin\",\r\n    \"apLoginPassword\": \"ruckus123!\"\r\n  },\r\n  \"mesh\": {\r\n        \"ssid\": \"mesh-xNHByMiO\",\r\n        \"passphrase\": \"oxnEe1e9L5LSG8ojqpPuLys3l78ibf30ODcSxcUcCBZAXShPvKjvJSnpAYH937H\",\r\n        \"meshRadioIdx\": \"Radio5G\",\r\n        \"zeroTouchStatus\": false\r\n    },\r\n  \"apHccdEnabled\": true\r\n}",
+					"raw": "{\r\n  \"domainId\": \"{{domainID}}\",\r\n  \"name\": \"Sunnyvale\",\r\n  \"description\": \"\",\r\n  \"countryCode\": \"US\",\r\n  \"timezone\": {\r\n    \"customizedTimezone\": {\r\n      \"abbreviation\": \"TPE\",\r\n      \"gmtOffset\": 0,\r\n      \"gmtOffsetMinute\": 0\r\n    }\r\n  },\r\n  \"login\": {\r\n    \"apLoginName\": \"admin\",\r\n    \"apLoginPassword\": \"password\"\r\n  },\r\n  \"mesh\": {\r\n        \"ssid\": \"mesh-xNHByMiO\",\r\n        \"passphrase\": \"oxnEe1e9L5LSG8ojqpPuLys3l78ibf30ODcSxcUcCBZAXShPvKjvJSnpAYH937H\",\r\n        \"meshRadioIdx\": \"Radio5G\",\r\n        \"zeroTouchStatus\": false\r\n    },\r\n  \"apHccdEnabled\": true\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1186,7 +1186,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"WPA WLAN\",\n  \"ssid\": \"WPA_SSID\",\n  \"description\": \"my wlan\",\n  \"encryption\": {\n    \"method\": \"WPA2\",\n    \"algorithm\": \"AES\",\n    \"passphrase\": \"ruckus123\"\n  },\n  \"advancedOptions\":{\n  \t\"clientFingerprintingEnabled\": true,\n  \t\"avcEnabled\": true\n  }\n}\n",
+					"raw": "{\n  \"name\": \"WPA WLAN\",\n  \"ssid\": \"WPA_SSID\",\n  \"description\": \"my wlan\",\n  \"encryption\": {\n    \"method\": \"WPA2\",\n    \"algorithm\": \"AES\",\n    \"passphrase\": \"password\"\n  },\n  \"advancedOptions\":{\n  \t\"clientFingerprintingEnabled\": true,\n  \t\"avcEnabled\": true\n  }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1480,7 +1480,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Captive Portal WLAN\",\r\n  \"ssid\": \"WEB_SSID\",\r\n  \"description\": \"\",\r\n  \"authServiceOrProfile\": {\r\n    \"throughController\": true,\r\n    \"id\": \"{{authServID}}\",\r\n    \"authenticationOption\": null\r\n  },\r\n  \"portalServiceProfile\": {\r\n    \"id\": \"{{portalID}}\"\r\n  },\r\n  \"encryption\": {\r\n    \"method\": \"WPA2\",\r\n    \"algorithm\": \"AES\",\r\n    \"passphrase\": \"ruckus123\"\r\n  },\r\n  \"advancedOptions\":{\r\n  \t\"clientFingerprintingEnabled\": true,\r\n    \"avcEnabled\": true\r\n  }\r\n}",
+					"raw": "{\r\n  \"name\": \"Captive Portal WLAN\",\r\n  \"ssid\": \"WEB_SSID\",\r\n  \"description\": \"\",\r\n  \"authServiceOrProfile\": {\r\n    \"throughController\": true,\r\n    \"id\": \"{{authServID}}\",\r\n    \"authenticationOption\": null\r\n  },\r\n  \"portalServiceProfile\": {\r\n    \"id\": \"{{portalID}}\"\r\n  },\r\n  \"encryption\": {\r\n    \"method\": \"WPA2\",\r\n    \"algorithm\": \"AES\",\r\n    \"passphrase\": \"password\"\r\n  },\r\n  \"advancedOptions\":{\r\n  \t\"clientFingerprintingEnabled\": true,\r\n    \"avcEnabled\": true\r\n  }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1610,7 +1610,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"description\": \"This WLAN uses WPA/AES\",\n    \"vlan\": {\n        \"accessVlan\": 1\n    },\n    \"encryption\": {\n        \"method\": \"WPA2\",\n        \"algorithm\": \"AES\",\n        \"passphrase\": \"ruckus123\"\n    }\n}",
+					"raw": "{\n    \"description\": \"This WLAN uses WPA/AES\",\n    \"vlan\": {\n        \"accessVlan\": 1\n    },\n    \"encryption\": {\n        \"method\": \"WPA2\",\n        \"algorithm\": \"AES\",\n        \"passphrase\": \"password\"\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -3765,7 +3765,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Wispr WLAN\",\r\n  \"ssid\": \"WISPR_SSID\",\r\n  \"description\": \"\",\r\n  \"authServiceOrProfile\": {\r\n    \"throughController\": true,\r\n    \"id\": \"{{authServID}}\",\r\n    \"authenticationOption\": null\r\n  },\r\n  \"portalServiceProfile\": {\r\n    \"id\": \"{{wisprPortalID}}\"\r\n  },\r\n  \"encryption\": {\r\n    \"method\": \"WPA2\",\r\n    \"algorithm\": \"AES\",\r\n    \"passphrase\": \"ruckus123\"\r\n  },\r\n  \"advancedOptions\":{\r\n  \t\"clientFingerprintingEnabled\": true\r\n  }\r\n}",
+					"raw": "{\r\n  \"name\": \"Wispr WLAN\",\r\n  \"ssid\": \"WISPR_SSID\",\r\n  \"description\": \"\",\r\n  \"authServiceOrProfile\": {\r\n    \"throughController\": true,\r\n    \"id\": \"{{authServID}}\",\r\n    \"authenticationOption\": null\r\n  },\r\n  \"portalServiceProfile\": {\r\n    \"id\": \"{{wisprPortalID}}\"\r\n  },\r\n  \"encryption\": {\r\n    \"method\": \"WPA2\",\r\n    \"algorithm\": \"AES\",\r\n    \"passphrase\": \"password\"\r\n  },\r\n  \"advancedOptions\":{\r\n  \t\"clientFingerprintingEnabled\": true\r\n  }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

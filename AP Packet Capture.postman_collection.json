@@ -25,7 +25,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"ruckus123!\"\n}\n\n\t"
+					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}\n\n\t"
 				},
 				"url": {
 					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/serviceTicket",
