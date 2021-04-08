@@ -1,0 +1,573 @@
+{
+	"info": {
+		"_postman_id": "2ae825d0-6f3d-47f4-9d28-6afee11a57d3",
+		"name": "WISPr and WLAN automation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Get service ticket",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var x = 0;\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.collectionVariables.set(\"serviceTicket\", jsonData.serviceTicket);\r",
+							"pm.collectionVariables.set(\"x\", x);\r",
+							"console.log(\"serviceTicket\", jsonData.serviceTicket)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"host\", \"a.b.c.d\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}\n\n\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/serviceTicket",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v8_1",
+						"serviceTicket"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get zones",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var y = 0;\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"x = pm.collectionVariables.get(\"x\");\r",
+							"pm.collectionVariables.set(\"y\", y);\r",
+							"try{\r",
+							"    pm.collectionVariables.set(\"zoneID\", jsonData.list[x].id);\r",
+							"    pm.collectionVariables.set(\"zoneName\", jsonData.list[x].name);\r",
+							"    console.log(x,jsonData.list[x].id,jsonData.list[x].name );\r",
+							"}\r",
+							"catch(e){\r",
+							"    console.log('There are more zones')\r",
+							"}\r",
+							"x = x + 1;\r",
+							"pm.collectionVariables.set(\"x\", x);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v8_1",
+						"rkszones"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Create wispr portal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"console.log(jsonData.data.label,jsonData.data.key)\r",
+							"pm.collectionVariables.set(\"wisprPortalID\", jsonData.data.key);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var name = pm.collectionVariables.get(\"zoneName\");",
+							"pm.collectionVariables.set(\"portalName\", name + \" - Drive-In WiFi Hotspot\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"zoneUUID\": \"{{zoneID}}\",\n    \"domainId\": \"\",\n    \"name\": \"{{portalName}}\",\n    \"description\": \"\",\n    \"key\": \"\",\n    \"bridgeMode\": 1,\n    \"smartClientMode\": \"none\",\n    \"spMode\": \"INTERNAL\",\n    \"redirectUrlBackupPortal\": \"\",\n    \"macAuthUsernameType\": 2,\n    \"secondRedirect\": \"user\",\n    \"title\": \"Drive-In WiFi Hotspot TERMS & CONDITIONS\",\n    \"logoBase64\": \"\",\n    \"imageFileName\": \"\",\n    \"termsAndConditionsEnabled\": true,\n    \"termsAndConditions\": \"Terms of Use\\n\\nBy accepting this agreement and accessing the wireless network, you acknowledge that you are of legal age, you have read and understood, and agree to be bound by this agreement.\\n(*) The wireless network service is provided by the property owners and is completely at their discretion. Your access to the network may be blocked, suspended, or terminated at any time for any reason.\\n(*) You agree not to use the wireless network for any purpose that is unlawful or otherwise prohibited and you are fully responsible for your use.\\n(*) The wireless network is provided \\\"as is\\\" without warranties of any kind, either expressed or implied.\\n\\nThis wireless network is powered by Ruckus.\",\n    \"sessionTime\": 1440,\n    \"gracePeriod\": 60,\n    \"wisperLocationId\": \"\",\n    \"wisperLocationName\": \"\",\n    \"walledGardenAndTrafficClassRadioGroup\": \"walledgarden\",\n    \"language\": \"en_US\",\n    \"httpsRedirect\": false,\n    \"redirectUrl\": \"\",\n    \"smartClientInfo\": \"\",\n    \"walledGarden\": \",\",\n    \"trafficClassProfileId\": \"\",\n    \"signatureSigningKey\": \"\",\n    \"internalNode\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/scg/hotspots?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"scg",
+						"hotspots"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Get wlans",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"y = pm.collectionVariables.get(\"y\")\r",
+							"try{\r",
+							"    pm.collectionVariables.set(\"wlanID\", jsonData.list[y].id);\r",
+							"    pm.collectionVariables.set(\"wlanName\", jsonData.list[y].name);\r",
+							"    console.log(y,jsonData.list[y].id,jsonData.list[y].name );\r",
+							"}\r",
+							"catch(e){\r",
+							"    console.log('There are more wlans')\r",
+							"}\r",
+							"y = y + 1;\r",
+							"pm.collectionVariables.set(\"y\", y);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v8_1",
+						"rkszones",
+						"{{zoneID}}",
+						"wlans"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Query wlan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"wlan\", responseBody);\r",
+							"wlanMode = JSON.parse(responseBody)\r",
+							"console.log(\"Authentication:\", wlanMode.type);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"rkszones",
+						"{{zoneID}}",
+						"wlans",
+						"{{wlanID}}"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6. Change wlan from standard to wispr",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"console.log(\"Success:\", JSON.parse(responseBody).success);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"wlanData = JSON.parse(pm.collectionVariables.get(\"wlan\"));",
+							"pm.collectionVariables.set(\"name\",wlanData.name);",
+							"pm.collectionVariables.set(\"ssid\",wlanData.ssid);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\": {{wlanID}},\n    \"mobilityZoneUUID\": \"{{zoneID}}\",\n    \"configContent\": {\n        \"Name\": \"{{name}}\",\n        \"_WLANType\": 1,\n        \"authSCGProxy\": 1,\n        \"VlanId\": 100,\n        \"authServiceId\": \"22222222-2222-2222-2222-222222222222\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/scg/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"scg",
+						"wlans",
+						"{{wlanID}}"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Get domains",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.collectionVariables.set(\"domainID\", jsonData.list[0].id);\r",
+							"pm.collectionVariables.set(\"parentDomainID\", jsonData.list[0].parentDomainId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/domains?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"domains"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8. Get hotspots",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var y = 0;\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"x = pm.collectionVariables.get(\"x\");\r",
+							"pm.collectionVariables.set(\"y\", y);\r",
+							"console.log(x);\r",
+							"try{\r",
+							"    pm.collectionVariables.set(\"zoneID\", jsonData.list[x].id);\r",
+							"    pm.collectionVariables.set(\"zoneName\", jsonData.list[x].name);\r",
+							"    console.log(jsonData.list[x].id,jsonData.list[x].name );\r",
+							"}\r",
+							"catch(e){\r",
+							"    console.log('There are more zones')\r",
+							"}\r",
+							"x = x + 1;\r",
+							"pm.collectionVariables.set(\"x\", x);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/portals/hotspot?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"rkszones",
+						"{{zoneID}}",
+						"portals",
+						"hotspot"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9. Change wlan from wispr to standard",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"wlan\", responseBody);\r",
+							"console.log(\"GET\");\r",
+							"console.log(pm.collectionVariables.get(\"wlan\"))"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\": 314,\n    \"mobilityZoneUUID\": \"043b26fb-1663-4837-8603-53911ef3f182\",\n    \"wlanGroupIds\": [\n        \"6e6e4e10-c2c5-11ea-9e5e-000000244738\"\n    ],\n    \"dpskType\": \"0\",\n    \"dpskExp\": \"0\",\n    \"dpskFromType\": \"0\",\n    \"zoneAffinityProfileId\": \"\",\n    \"dpTunnelNatEnabled\": false,\n    \"dpTunnelDhcpEnabled\": false,\n    \"enableBandBalancingShield\": false,\n    \"multicastFilterDrop\": false,\n    \"caleaEnabled\": false,\n    \"awsVenueEnable\": false,\n    \"wifiCallingPolicyList\": [],\n    \"configContent\": {\n        \"Availability\": 1,\n        \"_enableWlan\": 1,\n        \"RoamEnable\": 0,\n        \"RoamFactor24G\": 1,\n        \"RoamFactor5G\": 1,\n        \"Name\": \"Test\",\n        \"SSID\": \"Test\",\n        \"Description\": \"\",\n        \"_WLANType\": 0,\n        \"Authentication\": \"OPEN\",\n        \"OperatorRealm\": \"\",\n        \"SecurityMethod\": \"NONE\",\n        \"MDID\": 1,\n        \"_AcctId\": \"\",\n        \"STAIsolationWhitelistId\": \"\",\n        \"Priority\": \"high\",\n        \"NASIdType\": \"BSSID\",\n        \"NasIdDelimiter\": \"DASH\",\n        \"AuthReqTimeout\": 3,\n        \"AuthMaxRetry\": 2,\n        \"AuthRetryPriInvl\": 5,\n        \"CalledStaIdType\": 0,\n        \"vendorSpecificAttributeProfileId\": \"\",\n        \"firewallProfileId\": \"9d5d83a1-7f89-11ea-b8b8-dab0fc13c77f\",\n        \"UrlFilteringPolicyId\": \"\",\n        \"STAInfoExtraction\": 1,\n        \"VlanId\": 1,\n        \"MaxClients\": 100,\n        \"80211d\": 1,\n        \"Support80211k\": 1,\n        \"DtimInterval\": 1,\n        \"DirectedThreshold\": 5,\n        \"InactTimeout\": 120,\n        \"BSSMinRate\": \"0\",\n        \"MgmtTxRate\": \"2mbps\",\n        \"PMKEnable\": 1,\n        \"OKCEnable\": 1,\n        \"EnableType\": 0,\n        \"_dnsServerProfileId\": \"\",\n        \"_dnsSpoofingProfileId\": \"\",\n        \"_precedenceProfileId\": \"ca1edc50-c839-11e6-afc9-525400da2f0d\",\n        \"authRssiThr\": 0,\n        \"assocRssiThr\": 0,\n        \"Support80211r\": 0,\n        \"TunnelEnabled\": 0,\n        \"acctSCGProxy\": 0,\n        \"STAIssolation\": 0,\n        \"SingleSessionIdAcctEnabled\": 0,\n        \"firewallWlanSpecificEnabled\": false,\n        \"firewallAVCEnabled\": 0,\n        \"firewallUrlFilteringPolicyEnabled\": 0,\n        \"WifiCallingPolicyEnabled\": 0,\n        \"BroadcastSSID\": 1,\n        \"ClbEnable\": 1,\n        \"ProxyARP\": 0,\n        \"antiSpoofingEnabled\": false,\n        \"ForceClientDhcpEnable\": 0,\n        \"DhcpOp82\": 0,\n        \"IgnoreUnauth\": 0,\n        \"OFDMOnly\": 0,\n        \"flowLogEnabled\": 0,\n        \"hdOverheadOptimizeEnable\": 0,\n        \"transientClientMgmtEnable\": 0,\n        \"oceEnabled\": 0,\n        \"MacAuthBypass\": 0,\n        \"MacAuthPasswordType\": 0,\n        \"MacAuthPassword\": \"\",\n        \"MacAuthUsernameType\": 0,\n        \"DhcpOp82Format\": \"\",\n        \"SSIDUplinkRate\": 0,\n        \"SSIDDownlinkRate\": 0,\n        \"MulticastUplinkRateLimit\": 0,\n        \"MulticastDownlinkRateLimit\": 0,\n        \"AVCEnabled\": 0,\n        \"UrlFilteringPolicyEnabled\": 0,\n        \"_QosMap\": {},\n        \"WlanSchedulerId\": \"\",\n        \"WifiCallingPolicyIds\": \"\",\n        \"probeRssiThr\": 0,\n        \"raProxyEnabled\": 0,\n        \"ndProxyEnabled\": 0\n    },\n    \"eapAcctIpAttrIgnore\": false,\n    \"zoneName\": \"Opossum\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/scg/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"scg",
+						"wlans",
+						"{{wlanID}}"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "10.0.0.98"
+		},
+		{
+			"key": "endTime",
+			"value": 1594397379063
+		},
+		{
+			"key": "serviceTicket",
+			"value": "ST-77-3wz3hutUVlIbgbAlv5TD-SZH-5200699"
+		},
+		{
+			"key": "startTime",
+			"value": 1594393779063
+		},
+		{
+			"key": "zoneID",
+			"value": "203c719d-5a8e-4869-8f15-133776132c6f"
+		},
+		{
+			"key": "x",
+			"value": 2
+		},
+		{
+			"key": "domainID",
+			"value": "51a7cd20-403e-49e9-95b7-628bfba59522"
+		},
+		{
+			"key": "parentDomainID",
+			"value": "8b2081d5-9662-40d9-a3db-2a3cf4dde3f7"
+		},
+		{
+			"key": "authServID",
+			"value": "d12b0582-c2dd-11ea-9e5e-000000244738"
+		},
+		{
+			"key": "wisprPortalID",
+			"value": "7f11e13d-32fe-44fc-859c-0d4c12f47f76"
+		},
+		{
+			"key": "zoneName",
+			"value": "Earth"
+		},
+		{
+			"key": "portalName",
+			"value": "Europa - Drive-In WiFi Hotspot"
+		},
+		{
+			"key": "y",
+			"value": 1
+		},
+		{
+			"key": "wlanID",
+			"value": "26"
+		},
+		{
+			"key": "wlanName",
+			"value": "Sunnyvale"
+		},
+		{
+			"key": "wlan",
+			"value": "{\"id\":\"45\",\"zoneId\":\"9477d351-5938-4c33-90c0-526124d9f49a\",\"name\":\"WISPeEmi\",\"ssid\":\"WISPeEmi\",\"hessid\":\"\",\"description\":\"\",\"type\":\"Hotspot\",\"bypassCNA\":true,\"accessTunnelType\":\"APLBO\",\"coreTunnelProfile\":null,\"encryption\":{\"method\":\"WPA2\",\"algorithm\":\"AES\",\"mfp\":\"disabled\",\"passphrase\":\"ruckus123!\",\"saePassphrase\":null,\"keyIndex\":null,\"keyInHex\":null,\"support80211rEnabled\":false,\"mobilityDomainId\":null},\"authServiceOrProfile\":{\"id\":\"bc53ded1-14a3-11eb-ba9c-da0596e99ee0\",\"name\":\"External_Radius\",\"throughController\":true,\"locationDeliveryEnabled\":null,\"realmBasedAuth\":false,\"authenticationOption\":null,\"backupAuthenticationId\":null,\"backupAuthenticationName\":null,\"backupAuthenticationOption\":null},\"operatorRealm\":null,\"macAuth\":null,\"accountingServiceOrProfile\":null,\"radiusOptions\":{\"nasIdType\":\"WLAN_BSSID\",\"customizedNasId\":null,\"nasRequestTimeoutSec\":3,\"nasMaxRetry\":2,\"nasReconnectPrimaryMin\":5,\"calledStaIdType\":\"WLAN_BSSID\",\"nasIpType\":\"disabled\",\"nasIpUserDefined\":\"\",\"singleSessionIdAcctEnabled\":false,\"vendorSpecificAttributeProfileId\":\"\"},\"portalServiceProfile\":{\"id\":\"e5ae3527-a6a5-4144-8087-f89b49d0885e\",\"name\":\"external portal\"},\"hotspot20Profile\":null,\"defaultUserTrafficProfile\":null,\"precedenceProfileId\":\"ca1edc50-c839-11e6-afc9-525400da2f0d\",\"l2ACL\":null,\"devicePolicy\":null,\"vlan\":{\"accessVlan\":1,\"aaaVlanOverride\":null,\"coreQinQEnabled\":null,\"coreSVlan\":null,\"vlanPooling\":null},\"schedule\":{\"id\":null,\"name\":null,\"type\":\"AlwaysOn\"},\"firewallProfileId\":\"6a616fe0-c6cc-11ea-84f4-56d8b895b2fa\",\"firewallWlanSpecificEnabled\":false,\"firewallUplinkRateLimitingMbps\":0.0,\"firewallDownlinkRateLimitingMbps\":0.0,\"firewallL3AccessControlPolicyId\":\"\",\"firewallL2AccessControlPolicyId\":\"\",\"firewallUrlFilteringPolicyId\":\"\",\"firewallDevicePolicyId\":\"\",\"advancedOptions\":{\"clientIsolationEnabled\":true,\"clientIsolationUnicastEnabled\":true,\"clientIsolationMulticastEnabled\":false,\"clientIsolationAutoVrrpEnabled\":false,\"clientIsolationWhitelist\":null,\"priority\":\"High\",\"hideSsidEnabled\":false,\"clientLoadBalancingEnabled\":true,\"proxyARPEnabled\":false,\"dgafEnabled\":null,\"maxClientsPerRadio\":100,\"support80211dEnabled\":true,\"support80211kEnabled\":true,\"antiSpoofingEnabled\":false,\"arpRequestRateLimit\":0,\"dhcpRequestRateLimit\":0,\"forceClientDHCPTimeoutSec\":0,\"dhcpOption82Enabled\":null,\"dhcp82Format\":null,\"dhcp82SubOptRadiusFormat\":null,\"dhcp82SubOpt1Format\":null,\"dhcp82SubOpt2Format\":null,\"dhcp82SubOpt150Format\":null,\"dhcp82SubOpt151Format\":null,\"dhcp82SubOpt151AreaName\":\"\",\"dhcp82MacFormat\":\"COLON\",\"unauthClientStatsEnabled\":false,\"clientIdleTimeoutSec\":120,\"clientFingerprintingEnabled\":true,\"multicastFilterDrop\":false,\"ofdmOnlyEnabled\":false,\"bssMinRateMbps\":\"Disable\",\"mgmtTxRateMbps\":\"2 mbps\",\"bandBalancing\":\"UseZoneSetting\",\"hs20Onboarding\":false,\"pmkCachingEnabled\":null,\"okcEnabled\":null,\"avcEnabled\":false,\"urlFilteringPolicyEnabled\":false,\"urlFilteringPolicyId\":\"\",\"wifiCallingPolicyEnabled\":false,\"wifiCallingPolicyIds\":[\"\"],\"uplinkEnabled\":false,\"uplinkRate\":0.0,\"downlinkEnabled\":false,\"downlinkRate\":0.0,\"multicastUplinkRateLimitEnabled\":false,\"multicastUplinkRateLimit\":0,\"multicastDownlinkRateLimitEnabled\":false,\"multicastDownlinkRateLimit\":0,\"ratePerSTAUplink\":null,\"ratePerSTADownlink\":null,\"dtimInterval\":1,\"directedThreshold\":5,\"flowLogEnabled\":false,\"hdOverheadOptimizeEnable\":false,\"transientClientMgmtEnable\":false,\"probeRssiThr\":0,\"joinIgnoreTimeout\":null,\"joinAcceptTimeout\":null,\"joinIgnoreThr\":null,\"authRssiThr\":0,\"assocRssiThr\":0,\"dropRandomProbesEnabled\":null,\"ndProxyEnabled\":false,\"suppressNsEnabled\":false,\"raProxyEnabled\":false,\"rsraGuardEnabled\":false,\"raThrottlingEnabled\":false,\"maxAllowedRA\":0,\"raInterval\":0,\"oceEnabled\":false,\"oceBroadcastProbeResponseDelay\":null,\"oceRssiBasedAssociationRejectionThreshold\":null,\"dnsSpoofingProfileId\":\"\"},\"diffServProfile\":null,\"qosMaps\":null,\"dpsk\":{\"dpskEnabled\":false,\"length\":62,\"dpskType\":\"Secure\",\"expiration\":\"Unlimited\",\"dpskFromType\":\"CreateTime\"},\"dnsServerProfile\":null,\"caleaEnabled\":false,\"dpTunnelNatEnabled\":false,\"dpTunnelDhcpEnabled\":false,\"awsExtNasIPEnable\":false,\"accessTunnelProfile\":null,\"accessIpsecProfile\":null,\"flexiVpnProfile\":null,\"awsVenueEnable\":false,\"splitTunnelProfileId\":\"\",\"portalDetectionProfileId\":\"11111111-2018-0000-0000-111111111111\",\"firewallAppPolicyId\":\"\"}"
+		},
+		{
+			"key": "name",
+			"value": "Africa"
+		},
+		{
+			"key": "ssid",
+			"value": "Africa"
+		}
+	]
+}
