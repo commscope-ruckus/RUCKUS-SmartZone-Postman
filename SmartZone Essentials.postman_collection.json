@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "84e2734a-d672-404c-ba3b-96d3029fcfee",
-		"name": "SmartZone Essentials",
+		"_postman_id": "13817278-b0c7-42ac-9852-3cbcdcdc1036",
+		"name": "GitHub - SmartZone Essentials",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -11,10 +11,22 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7bc42a92-5800-4087-a5c6-dc3a8b53bc75",
 						"exec": [
+							"const dateNow = new Date();\r",
+							"var epoch = dateNow.getTime();\r",
 							"var jsonData = JSON.parse(responseBody);\r",
-							"postman.setEnvironmentVariable(\"serviceTicket\", jsonData.serviceTicket);"
+							"pm.collectionVariables.set(\"serviceTicket\", jsonData.serviceTicket);\r",
+							"pm.collectionVariables.set(\"startTime\", epoch - 3600000);\r",
+							"pm.collectionVariables.set(\"endTime\", epoch);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"host\", \"a.b.c.d\");"
 						],
 						"type": "text/javascript"
 					}
@@ -25,10 +37,15 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}\n\n\t"
+					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}\n\n\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/serviceTicket",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/serviceTicket",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -38,7 +55,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"serviceTicket"
 					]
 				}
@@ -51,7 +68,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ce54a5e1-df38-4a3a-b5b9-b6db6ca40b3a",
 						"exec": [
 							"var jsonData = JSON.parse(responseBody);\r",
 							"postman.setEnvironmentVariable(\"zoneID\", jsonData.list[0].id);\r",
@@ -65,7 +81,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -75,7 +91,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"rkszones"
 					],
 					"query": [
@@ -94,7 +110,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/controller?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/controller?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -104,7 +120,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"controller"
 					],
 					"query": [
@@ -124,10 +140,9 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "98281833-8494-4dbf-8ca1-ab116fa02254",
 						"exec": [
 							"var jsonData = JSON.parse(responseBody);\r",
-							"postman.setEnvironmentVariable(\"wlanID\", jsonData.list[0].id);"
+							"pm.collectionVariables.set(\"wlanID\", jsonData.list[0].id);"
 						],
 						"type": "text/javascript"
 					}
@@ -137,7 +152,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -147,7 +162,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"rkszones",
 						"{{zoneID}}",
 						"wlans"
@@ -168,7 +183,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -178,7 +193,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"rkszones",
 						"{{zoneID}}",
 						"wlans",
@@ -201,46 +216,15 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"description\": \"Test SSID\",\r\n\"vlan\": {\r\n    \"accessVlan\": 23},\r\n     \"encryption\": {\r\n        \"method\": \"WPA_Mixed\",\r\n        \"algorithm\": \"AES\",\r\n        \"passphrase\": \"ruckus123\"\r\n\r\n    }\r\n\r\n}\r\n"
-				},
-				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
-					"protocol": "https",
-					"host": [
-						"{{host}}"
-					],
-					"port": "8443",
-					"path": [
-						"wsg",
-						"api",
-						"public",
-						"v8_1",
-						"rkszones",
-						"{{zoneID}}",
-						"wlans",
-						"{{wlanID}}"
-					],
-					"query": [
-						{
-							"key": "serviceTicket",
-							"value": "{{serviceTicket}}"
+					"raw": "{\r\n    \"description\": \"Test SSID\",\r\n    \"vlan\": {\r\n        \"accessVlan\": 23\r\n    },\r\n    \"encryption\": {\r\n        \"method\": \"WPA_Mixed\",\r\n        \"algorithm\": \"AES\",\r\n        \"passphrase\": \"ruckus123\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "10. Get Firewall profiles",
-			"request": {
-				"method": "PATCH",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\"description\": \"Test SSID\",\r\n\"vlan\": {\r\n    \"accessVlan\": 23},\r\n     \"encryption\": {\r\n        \"method\": \"WPA_Mixed\",\r\n        \"algorithm\": \"AES\",\r\n        \"passphrase\": \"ruckus123\"\r\n\r\n    }\r\n\r\n}\r\n"
+					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -250,7 +234,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"rkszones",
 						"{{zoneID}}",
 						"wlans",
@@ -267,5 +251,30 @@
 			"response": []
 		}
 	],
-	"protocolProfileBehavior": {}
+	"variable": [
+		{
+			"key": "host",
+			"value": ""
+		},
+		{
+			"key": "serviceTicket",
+			"value": ""
+		},
+		{
+			"key": "startTime",
+			"value": ""
+		},
+		{
+			"key": "endTime",
+			"value": ""
+		},
+		{
+			"key": "zoneID",
+			"value": ""
+		},
+		{
+			"key": "wlanID",
+			"value": ""
+		}
+	]
 }

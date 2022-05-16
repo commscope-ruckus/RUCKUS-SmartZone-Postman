@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "93aaca33-64e5-463b-8476-f352c3a32eeb",
-		"name": "SZ Mesh APIs",
+		"_postman_id": "6ea422b7-f4bd-451e-91c3-94bbe9552236",
+		"name": "GitHub - SZ Mesh APIs",
 		"description": "Pre-Requisites\n\nThe following instructions assume you have the following components:\n-\tone vSZ-High Scale instance running 5.2.0.0.685 or later;\n-\tone access point onboarded into the vSZ staging zone;\n\nInstructions\n\nEdit the attribute values for the API call \"1. Get service ticket\" under the folder \"System\" to match with your vSZ instance:\n-\tchange the IP address in the \"Pre-request Script\"\n-\tchange the credentials in the \"Body\"\n\nCheck if if system clock in your vSZ instance matches the clock in your computer. Make the necessary adjustments (sync the NTP server or change the time zone), otherwise the API calls that are time-dependent (ex: \"2. Get wireless application traffic\" under \"Clients and Traffic\") will not return the correct values.\n\nSend the API call \"1. Get service ticket\" to obtain the authentication token.\n\nSend each of the subsequent API calls in the order which they appear.\n\nAfter you execute all calls, clean you vSZ instance by executing all API calls under the \"Delete objects\" folder,  in the order which they appear.\n\nYou can see the variable values in the \"Variables\" tab in this page.\n\nFor more information about this collection please contact marcelo.molinari@commscope.com\n",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -24,7 +24,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.collectionVariables.set(\"host\", \"10.0.0.98\");"
+							"pm.collectionVariables.set(\"host\", \"a.b.c.d\");"
 						],
 						"type": "text/javascript"
 					}
@@ -381,18 +381,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "9. Get neighbors on mesh AP - B4:79:C8:0D:76:30",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/4C:B1:CD:1E:4D:F0/operational/neighbor?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/0C:F4:D5:19:00:A0/operational/neighbor?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -404,7 +393,39 @@
 						"public",
 						"v9_0",
 						"aps",
-						"4C:B1:CD:1E:4D:F0",
+						"0C:F4:D5:19:00:A0",
+						"operational",
+						"neighbor"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9. Get neighbors on mesh AP - B4:79:C8:0D:76:30",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/aps/B4:79:C8:0D:76:30/operational/neighbor?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"aps",
+						"B4:79:C8:0D:76:30",
 						"operational",
 						"neighbor"
 					],

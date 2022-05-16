@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "13aa069f-ce3b-4c0d-b50c-a7607a412ac8",
-		"name": "AP Packet Capture",
+		"_postman_id": "9338b22d-9ae0-40f6-a3cf-baa801220a23",
+		"name": "GitHub - AP Packet Capture",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -11,10 +11,22 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7bc42a92-5800-4087-a5c6-dc3a8b53bc75",
 						"exec": [
+							"const dateNow = new Date();\r",
+							"var epoch = dateNow.getTime();\r",
 							"var jsonData = JSON.parse(responseBody);\r",
-							"postman.setEnvironmentVariable(\"serviceTicket\", jsonData.serviceTicket);"
+							"pm.collectionVariables.set(\"serviceTicket\", jsonData.serviceTicket);\r",
+							"pm.collectionVariables.set(\"startTime\", epoch - 3600000);\r",
+							"pm.collectionVariables.set(\"endTime\", epoch);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"host\", \"a.b.c.d\");"
 						],
 						"type": "text/javascript"
 					}
@@ -25,10 +37,15 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}\n\n\t"
+					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}\n\n\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/serviceTicket",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/serviceTicket",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -38,7 +55,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"serviceTicket"
 					]
 				}
@@ -51,7 +68,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
 						"exec": [
 							""
 						],
@@ -64,10 +80,10 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"captureInterface\": \"RADIO50\",\r\n  \"includedFrameTypes\": [\r\n    \"CONTROL\",\r\n    \"DATA\"\r\n  ]\r\n}",
+					"raw": "{\r\n    \"captureInterface\": \"RADIO50\",\r\n    \"includedFrameTypes\": [\r\n        \"CONTROL\",\r\n        \"DATA\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
-							"language": "text"
+							"language": "json"
 						}
 					}
 				},
@@ -104,7 +120,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
 						"exec": [
 							""
 						],
@@ -157,7 +172,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "891bc4b9-0426-45bb-a244-b36ce9bb801d",
 						"exec": [
 							""
 						],
@@ -205,5 +219,22 @@
 			"response": []
 		}
 	],
-	"protocolProfileBehavior": {}
+	"variable": [
+		{
+			"key": "host",
+			"value": ""
+		},
+		{
+			"key": "serviceTicket",
+			"value": ""
+		},
+		{
+			"key": "startTime",
+			"value": ""
+		},
+		{
+			"key": "endTime",
+			"value": ""
+		}
+	]
 }

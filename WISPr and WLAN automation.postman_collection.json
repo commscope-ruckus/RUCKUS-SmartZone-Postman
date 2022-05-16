@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "2ae825d0-6f3d-47f4-9d28-6afee11a57d3",
-		"name": "WISPr and WLAN automation",
+		"_postman_id": "735b0f12-9dd4-4a4c-9262-62139d86aa4e",
+		"name": "GitHub - WISPr and WLAN automation",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -44,7 +44,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/serviceTicket",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/serviceTicket",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -54,7 +54,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"serviceTicket"
 					]
 				}
@@ -91,7 +91,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -101,7 +101,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"rkszones"
 					],
 					"query": [
@@ -202,7 +202,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v8_1/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -212,7 +212,7 @@
 						"wsg",
 						"api",
 						"public",
-						"v8_1",
+						"v9_0",
 						"rkszones",
 						"{{zoneID}}",
 						"wlans"
