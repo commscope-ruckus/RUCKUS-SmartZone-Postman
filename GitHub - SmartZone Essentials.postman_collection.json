@@ -1,0 +1,280 @@
+{
+	"info": {
+		"_postman_id": "13817278-b0c7-42ac-9852-3cbcdcdc1036",
+		"name": "GitHub - SmartZone Essentials",
+		"description": "The following instructions assume you have the following components:\n\n*   one vSZ-High Scale instance running 5.2.0.0.685 or later;\n*   one access point onboarded into the vSZ staging zone;\n    \n\nInstructions\n\nEdit the attribute values for the API call \"1. Get service ticket\" under the folder \"System\" to match with your vSZ instance:\n\n*   change the IP address in the \"Pre-request Script\"\n*   change the credentials in the \"Body\"\n    \n\nCheck if if system clock in your vSZ instance matches the clock in your computer. Make the necessary adjustments (sync the NTP server or change the time zone), otherwise the API calls that are time-dependent (ex: \"2. Get wireless application traffic\" under \"Clients and Traffic\") will not return the correct values.\n\nSend the API call \"1. Get service ticket\" to obtain the authentication token.\n\nSend each of the subsequent API calls in the order which they appear.\n\nAfter you execute all calls, clean you vSZ instance by executing all API calls under the \"Delete objects\" folder, in the order which they appear.\n\nYou can see the variable values in the \"Variables\" tab in this page.\n\nFor more information about this collection please contact [marcelo.molinari@commscope.com](https://desktop.postman.com/?desktopVersion=9.16.0&userId=9262131&teamId=923089)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Service Ticket",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const dateNow = new Date();\r",
+							"var epoch = dateNow.getTime();\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.collectionVariables.set(\"serviceTicket\", jsonData.serviceTicket);\r",
+							"pm.collectionVariables.set(\"startTime\", epoch - 3600000);\r",
+							"pm.collectionVariables.set(\"endTime\", epoch);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"host\", \"a.b.c.d.\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}\n\n\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/serviceTicket",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"serviceTicket"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Zones",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"zoneID\", jsonData.list[0].id);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"rkszones"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Sytem Information",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/controller?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"controller"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				},
+				"description": "Includes hostname, serial number and model number"
+			},
+			"response": []
+		},
+		{
+			"name": "8. Get WLANs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.collectionVariables.set(\"wlanID\", jsonData.list[0].id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"rkszones",
+						"{{zoneID}}",
+						"wlans"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8. Query WLAN",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"rkszones",
+						"{{zoneID}}",
+						"wlans",
+						"{{wlanID}}"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9. Create WLAN",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Nakagawa-san\",\r\n    \"ssid\": \"Nakagawa-san\",\r\n    \"description\": \"Nakagawa-san wlan\",\r\n    \"encryption\": {\r\n        \"method\": \"WPA2\",\r\n        \"algorithm\": \"AES\",\r\n        \"passphrase\": \"password\"\r\n    },\r\n    \"advancedOptions\": {\r\n        \"clientFingerprintingEnabled\": true,\r\n        \"avcEnabled\": true\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8443",
+					"path": [
+						"wsg",
+						"api",
+						"public",
+						"v9_0",
+						"rkszones",
+						"{{zoneID}}",
+						"wlans"
+					],
+					"query": [
+						{
+							"key": "serviceTicket",
+							"value": "{{serviceTicket}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": ""
+		},
+		{
+			"key": "serviceTicket",
+			"value": ""
+		},
+		{
+			"key": "startTime",
+			"value": ""
+		},
+		{
+			"key": "endTime",
+			"value": ""
+		},
+		{
+			"key": "zoneID",
+			"value": ""
+		},
+		{
+			"key": "wlanID",
+			"value": ""
+		}
+	]
+}
