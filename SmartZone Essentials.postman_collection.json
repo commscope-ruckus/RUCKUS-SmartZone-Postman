@@ -27,7 +27,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.collectionVariables.set(\"host\", \"a.b.c.d\");"
+							"pm.collectionVariables.set(\"host\", \"a.b.c.d.\");"
 						],
 						"type": "text/javascript"
 					}
@@ -211,13 +211,13 @@
 			"response": []
 		},
 		{
-			"name": "9. Configure WLAN",
+			"name": "9. Create WLAN",
 			"request": {
-				"method": "PATCH",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"description\": \"Test SSID\",\r\n    \"vlan\": {\r\n        \"accessVlan\": 23\r\n    },\r\n    \"encryption\": {\r\n        \"method\": \"WPA_Mixed\",\r\n        \"algorithm\": \"AES\",\r\n        \"passphrase\": \"ruckus123\"\r\n    }\r\n}",
+					"raw": "{\r\n    \"name\": \"Nakagawa-san\",\r\n    \"ssid\": \"Nakagawa-san\",\r\n    \"description\": \"Nakagawa-san wlan\",\r\n    \"encryption\": {\r\n        \"method\": \"WPA2\",\r\n        \"algorithm\": \"AES\",\r\n        \"passphrase\": \"password\"\r\n    },\r\n    \"advancedOptions\": {\r\n        \"clientFingerprintingEnabled\": true,\r\n        \"avcEnabled\": true\r\n    }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -225,7 +225,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+					"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans?serviceTicket={{serviceTicket}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -238,8 +238,7 @@
 						"v9_0",
 						"rkszones",
 						"{{zoneID}}",
-						"wlans",
-						"{{wlanID}}"
+						"wlans"
 					],
 					"query": [
 						{
