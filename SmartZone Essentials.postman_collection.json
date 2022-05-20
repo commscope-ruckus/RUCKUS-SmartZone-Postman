@@ -217,7 +217,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"Nakagawa-san\",\r\n    \"ssid\": \"Nakagawa-san\",\r\n    \"description\": \"Nakagawa-san wlan\",\r\n    \"encryption\": {\r\n        \"method\": \"WPA2\",\r\n        \"algorithm\": \"AES\",\r\n        \"passphrase\": \"password\"\r\n    },\r\n    \"advancedOptions\": {\r\n        \"clientFingerprintingEnabled\": true,\r\n        \"avcEnabled\": true\r\n    }\r\n}",
+					"raw": "{\r\n    \"name\": \"test-ssid\",\r\n    \"ssid\": \"test-ssid\",\r\n    \"description\": \"test-ssid\",\r\n    \"encryption\": {\r\n        \"method\": \"WPA2\",\r\n        \"algorithm\": \"AES\",\r\n        \"passphrase\": \"password\"\r\n    },\r\n    \"advancedOptions\": {\r\n        \"clientFingerprintingEnabled\": true,\r\n        \"avcEnabled\": true\r\n    }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
