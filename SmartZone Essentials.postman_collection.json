@@ -3,7 +3,8 @@
 		"_postman_id": "13817278-b0c7-42ac-9852-3cbcdcdc1036",
 		"name": "GitHub - SmartZone Essentials",
 		"description": "The following instructions assume you have the following components:\n\n*   one vSZ-High Scale instance running 5.2.0.0.685 or later;\n*   one access point onboarded into the vSZ staging zone;\n    \n\nInstructions\n\nEdit the attribute values for the API call \"1. Get service ticket\" under the folder \"System\" to match with your vSZ instance:\n\n*   change the IP address in the \"Pre-request Script\"\n*   change the credentials in the \"Body\"\n    \n\nCheck if if system clock in your vSZ instance matches the clock in your computer. Make the necessary adjustments (sync the NTP server or change the time zone), otherwise the API calls that are time-dependent (ex: \"2. Get wireless application traffic\" under \"Clients and Traffic\") will not return the correct values.\n\nSend the API call \"1. Get service ticket\" to obtain the authentication token.\n\nSend each of the subsequent API calls in the order which they appear.\n\nAfter you execute all calls, clean you vSZ instance by executing all API calls under the \"Delete objects\" folder, in the order which they appear.\n\nYou can see the variable values in the \"Variables\" tab in this page.\n\nFor more information about this collection please contact [marcelo.molinari@commscope.com](https://desktop.postman.com/?desktopVersion=9.16.0&userId=9262131&teamId=923089)",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9262131"
 	},
 	"item": [
 		{
@@ -71,8 +72,7 @@
 					"script": {
 						"exec": [
 							"var jsonData = JSON.parse(responseBody);\r",
-							"postman.setEnvironmentVariable(\"zoneID\", jsonData.list[0].id);\r",
-							""
+							"pm.collectionVariables.set(\"zoneID\", jsonData.list[0].id);"
 						],
 						"type": "text/javascript"
 					}
