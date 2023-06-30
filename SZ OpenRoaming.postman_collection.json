@@ -1,0 +1,1645 @@
+{
+	"info": {
+		"_postman_id": "4f772aa9-270a-4e08-82b5-2e14d475c44c",
+		"name": "SZ OpenRoaming",
+		"description": "Pre-Requisites\n\nThe following instructions assume you have the following components:\n-\tone vSZ-High Scale instance running 5.2.0.0.685 or later;\n-\tone access point onboarded into the vSZ staging zone;\n\nInstructions\n\nEdit the attribute values for the API call \"1. Get service ticket\" under the folder \"System\" to match with your vSZ instance:\n-\tchange the IP address in the \"Pre-request Script\"\n-\tchange the credentials in the \"Body\"\n\nCheck if if system clock in your vSZ instance matches the clock in your computer. Make the necessary adjustments (sync the NTP server or change the time zone), otherwise the API calls that are time-dependent (ex: \"2. Get wireless application traffic\" under \"Clients and Traffic\") will not return the correct values.\n\nSend the API call \"1. Get service ticket\" to obtain the authentication token.\n\nSend each of the subsequent API calls in the order which they appear.\n\nAfter you execute all calls, clean you vSZ instance by executing all API calls under the \"Delete objects\" folder,  in the order which they appear.\n\nYou can see the variable values in the \"Variables\" tab in this page.\n\nFor more information about this collection please contact marcelo.molinari@commscope.com\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9262131"
+	},
+	"item": [
+		{
+			"name": "Create objects",
+			"item": [
+				{
+					"name": "1. Get service ticket",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"host\", \"SZ_ip_address\");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"serviceTicket\", jsonData.serviceTicket);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"your_passord!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/serviceTicket",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"serviceTicket"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Create domain",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"domainID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"San Mateo\",\n  \"domainType\": \"PARTNER\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/domains?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"domains"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Get domains",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"parentDomainID\", jsonData.list[0].parentDomainId);\r",
+									"pm.collectionVariables.set(\"domainID\", jsonData.list[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/domains?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"domains"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Create zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"zoneID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"domainId\": \"{{domainID}}\",\r\n  \"name\": \"SFO\",\r\n  \"description\": \"\",\r\n  \"countryCode\": \"US\",\r\n  \"timezone\": {\r\n    \"customizedTimezone\": {\r\n      \"abbreviation\": \"TPE\",\r\n      \"gmtOffset\": 0,\r\n      \"gmtOffsetMinute\": 0\r\n    }\r\n  },\r\n  \"login\": {\r\n    \"apLoginName\": \"admin\",\r\n    \"apLoginPassword\": \"ruckus123!\"\r\n  },\r\n  \"apHccdEnabled\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Get zones",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Create client certificate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"clientCertID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{""string for your certificate and private key""}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/certstore/clientCert?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"certstore",
+								"clientCert"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. Get client certificate list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/certstore/clientCert?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"certstore",
+								"clientCert"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. Create trusted CA certificate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"caTrustCertID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{""string for the chaining certificate""}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/certstore/trustedCAChainCert?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"certstore",
+								"trustedCAChainCert"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9. Get trust CA certificate list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/certstore/trustedCAChainCert?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"certstore",
+								"trustedCAChainCert"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10. Create RADSec AAA",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"authServID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"domainId\": \"{{domainID}}\",\n    \"name\": \"name RADsec AAA\",\n    \"friendlyName\": \"\",\n    \"description\": \"\",\n    \"type\": \"RADIUS\",\n    \"tlsEnabled\": true,\n    \"cnSanIdentity\": \"*.roamingid.net\",\n    \"clientCertId\": \"{{clientCertID}}\",\n    \"serverCertId\": \"\",\n    \"locationDeliveryEnabled\": false,\n    \"primary\": {\n        \"ip\": \"ip_address\",\n        \"port\": 2083,\n        \"sharedSecret\": \"\"\n    },\n    \"rateLimiting\": {\n        \"maxOutstandingRequestsPerServer\": 0,\n        \"threshold\": 0,\n        \"sanityTimer\": 10\n    },\n    \"mappings\": [],\n    \"ocspUrl\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v10_0/services/auth/radius?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v10_0",
+								"services",
+								"auth",
+								"radius"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11. Get proxy AAA list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"type\": \"DOMAIN\",\n            \"value\": \"{{domainID}}\"\n        }\n    ],\n    \"page\": 1,\n    \"limit\": 8\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/services/auth/query?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"services",
+								"auth",
+								"query"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12. Query proxy AAA",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"authServID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/services/auth/radius/{{authServID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"services",
+								"auth",
+								"radius",
+								"{{authServID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "13. Create wifi operator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"wifiOperatorID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"domainId\": \"{{domainID}}\",\n  \"name\": \"San Mateo County\",\n  \"description\": \"\",\n  \"domainNames\": [\n    \"bayarea.roamingid.net\"\n  ],\n  \"friendlyNames\": [\n    {\n      \"language\": \"English\",\n      \"name\": \"San Mateo County\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/profiles/hs20/operators?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"profiles",
+								"hs20",
+								"operators"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "14. Query wifi operator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"wifiOperatorID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/profiles/hs20/operators/{{wifiOperatorID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"profiles",
+								"hs20",
+								"operators",
+								"{{wifiOperatorID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "15. Create identity provider",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"identityProviderID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"domainId\": \"{{domainID}}\",\n    \"name\": \"name\",\n    \"description\": \"\",\n    \"plmns\": [],\n    \"realms\": [\n        {\n            \"name\": \"wballiance.com\",\n            \"encoding\": \"RFC4282\",\n            \"eapMethods\": [\n                {\n                    \"type\": \"EAP_TTLS\",\n                    \"authSettings\": [\n                        {\n                            \"info\": \"Non\",\n                            \"type\": \"MSCHAPV2\"\n                        }\n                    ]\n                },\n                {\n                    \"type\": \"NA\"\n                },\n                {\n                    \"type\": \"NA\"\n                },\n                {\n                    \"type\": \"NA\"\n                }\n            ]\n        }\n    ],\n    \"homeOis\": [\n        {\n            \"name\": \"WBA OR RCOI\",\n            \"oi\": \"5a03ba0000\"\n        }\n    ],\n    \"authentications\": [\n        {\n            \"realm\": \"No Match\",\n            \"serviceType\": \"RADIUS\",\n            \"name\": \"name RADsec AAA\",\n            \"id\": \"{{authServID}}\"\n        },\n        {\n            \"realm\": \"Unspecified\",\n            \"serviceType\": \"RADIUS\",\n            \"name\": \"name RADsec AAA\",\n            \"id\": \"{{authServID}}\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/profiles/hs20/identityproviders?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"profiles",
+								"hs20",
+								"identityproviders"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "16. Get identity provider",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"identityProviderID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/profiles/hs20/identityproviders/{{identityProviderID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"profiles",
+								"hs20",
+								"identityproviders",
+								"{{identityProviderID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "17. Query identity provider",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"identityProviderID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filters\": [\n        {\n            \"type\": \"DOMAIN\",\n            \"value\": \"{{domainID}}\"\n        }\n    ],\n    \"page\": 1,\n    \"limit\": 8\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/profiles/hs20/identityproviders/query?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"profiles",
+								"hs20",
+								"identityproviders",
+								"query"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "18. Create hotspot 2.0 zone profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"hotspotZoneProfileID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"WBA OR profile\",\n  \"description\": \"\",\n  \"operator\": {\n    \"id\": \"{{wifiOperatorID}}\"\n  },\n  \"defaultIdentityProvider\": {\n    \"id\": \"{{identityProviderID}}\"\n  },\n  \"internetOption\": true,\n  \"accessNetworkType\": \"PRIVATE\",\n  \"ipv4AddressType\": \"SINGLE_NATED_PRIVATE\",\n  \"ipv6AddressType\": \"UNAVAILABLE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/hs20s?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"hs20s"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "19. Query hotspot 2.0 zone profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"hotspotZoneProfileID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"WBA profile\",\n  \"description\": \"Citimesh WBA profile\",\n  \"operator\": {\n    \"id\": \"{{wifiOperatorID}}\"\n  },\n  \"defaultIdentityProvider\": {\n    \"id\": \"{{identityProviderID}}\"\n  },\n  \"internetOption\": true,\n  \"accessNetworkType\": \"PRIVATE\",\n  \"ipv4AddressType\": \"SINGLE_NATED_PRIVATE\",\n  \"ipv6AddressType\": \"UNAVAILABLE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/hs20s/{{hotspotZoneProfileID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"hs20s",
+								"{{hotspotZoneProfileID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "20. Create hotspot 2.0 wlan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"pm.collectionVariables.set(\"wlanID\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\": \"OpenRoaming\",\n  \"ssid\": \"OpenRoaming\",\n  \"description\": \"\",\n  \"hotspot20Profile\": {\n    \"id\": \"{{hotspotZoneProfileID}}\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/hotspot20?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"hotspot20"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "21. Query hotspot 2.0 wlan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete objects",
+			"item": [
+				{
+					"name": "22. Delete wlan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/wlans/{{wlanID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"wlans",
+								"{{wlanID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "23. Delete hotspot 2.0 zone profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}/hs20s/{{hotspotZoneProfileID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}",
+								"hs20s",
+								"{{hotspotZoneProfileID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "24. Delete identity provider",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/profiles/hs20/identityproviders/{{identityProviderID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"profiles",
+								"hs20",
+								"identityproviders",
+								"{{identityProviderID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "25. Delete wifi operator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/profiles/hs20/operators/{{wifiOperatorID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"profiles",
+								"hs20",
+								"operators",
+								"{{wifiOperatorID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "26. Delete radius AAA",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/services/auth/radius/{{authServID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"services",
+								"auth",
+								"radius",
+								"{{authServID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "27. Delete client certificate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/certstore/clientCert/{{clientCertID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"certstore",
+								"clientCert",
+								"{{clientCertID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "28. Delete trust CA certificate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/certstore/trustedCAChainCert/{{caTrustCertID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"certstore",
+								"trustedCAChainCert",
+								"{{caTrustCertID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "29. Delete zone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/rkszones/{{zoneID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"rkszones",
+								"{{zoneID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "30. Delete domain",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}:8443/wsg/api/public/v9_0/domains/{{domainID}}?serviceTicket={{serviceTicket}}",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"port": "8443",
+							"path": [
+								"wsg",
+								"api",
+								"public",
+								"v9_0",
+								"domains",
+								"{{domainID}}"
+							],
+							"query": [
+								{
+									"key": "serviceTicket",
+									"value": "{{serviceTicket}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": ""
+		},
+		{
+			"key": "endTime",
+			"value": 1603495267262
+		},
+		{
+			"key": "serviceTicket",
+			"value": ""
+		},
+		{
+			"key": "startTime",
+			"value": 1603491667262
+		},
+		{
+			"key": "domainID",
+			"value": ""
+		},
+		{
+			"key": "zoneID",
+			"value": ""
+		},
+		{
+			"key": "parentDomainID",
+			"value": ""
+		},
+		{
+			"key": "apMAC",
+			"value": ""
+		},
+		{
+			"key": "wlanID",
+			"value": ""
+		},
+		{
+			"key": "aclID",
+			"value": ""
+		},
+		{
+			"key": "dpskID",
+			"value": ""
+		},
+		{
+			"key": "ethProfileID",
+			"value": ""
+		},
+		{
+			"key": "authServID",
+			"value": null
+		},
+		{
+			"key": "identityProviderID",
+			"value": ""
+		},
+		{
+			"key": "wifiOperatorID",
+			"value": ""
+		},
+		{
+			"key": "hotspotZoneProfileID",
+			"value": ""
+		},
+		{
+			"key": "apgroupID",
+			"value": null
+		},
+		{
+			"key": "clientCertID",
+			"value": ""
+		},
+		{
+			"key": "caTrustCertID",
+			"value": ""
+		}
+	]
+}
